@@ -1,3 +1,30 @@
+from django.contrib.auth.models import AbstractUser
 from django.db import models
 
-# Create your models here.
+ROLES = (
+    ('user', 'User'),
+    ('moderator', 'Moderator'),
+    ('admin', 'Admin')
+)
+
+
+class User(AbstractUser):
+
+    email = models.EmailField(
+        blank=False,
+        max_length=254,
+        unique=True
+    )
+    bio = models.TextField(
+        blank=True
+    )
+    role = models.TextField(
+        blank=True,
+        choices=ROLES,
+        default='user'
+    )
+
+    class Meta:
+        ordering = ['-id']
+        verbose_name = 'user'
+        verbose_name_plural = 'Пользователи'
