@@ -2,10 +2,10 @@ from rest_framework.routers import DefaultRouter
 
 from django.urls import include, path
 
-from api.views import CommentViewSet, ViewSet
+from api.views import CommentViewSet, ReviewViewSet
 
 router = DefaultRouter()
-router.register(r'review', ViewSet, basename='review')
+router.register(r'review', ReviewViewSet, basename='review')
 router.register(r'comments', CommentViewSet, basename='comments')
 
 
