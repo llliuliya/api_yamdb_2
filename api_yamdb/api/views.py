@@ -1,13 +1,17 @@
 from django.db.models import Avg
+from django.shortcuts import get_object_or_404
 from rest_framework import filters, mixins, viewsets
 from django_filters.rest_framework import DjangoFilterBackend
 
 from .serializers import (CategorySerializer,
+                          CommentSerializer,
                           GenreSerializer,
+                          ReviewSerializer,
                           TitleReadSerializer,
                           TitleWriteSerializer)
-from .permissions import IsAdminUserOrReadOnly
-from reviews.models import Category, Genre, Title
+from .permissions import IsAdminUserOrReadOnly, IsOwnerOrReadOnly
+from reviews.models import Category, Comment, Genre, Review, Title
+from users.models import User
 
 
 class TitleViewSet(viewsets.ModelViewSet):
@@ -45,3 +49,31 @@ class GenreViewSet(MixinSet):
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
     lookup_field = 'slug'
+
+
+class ReviewViewSet(viewsets.ModelViewSet):
+    serializer_class = ReviewSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
+
+    def get_queryset(self):
+        title_id = self.kwargs.get('title_id')
+        queryset = Review.objects.filter(title=title_id)
+        return queryset
+
+    def perform_create(self, serializer):
+        title = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
+        serializer.save(author=self.request.user, title=title)
+
+
+class CommentViewSet(viewsets.ModelViewSet):
+    serializer_class = CommentSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
+
+    def get_queryset(self):
+        review_id = self.kwargs.get('review_id')
+        queryset = Comment.objects.filter(review=review_id)
+        return queryset
+
+    def perform_create(self, serializer):
+        review = get_object_or_404(Review, pk=self.kwargs.get('review_id'))
+        serializer.save(author=self.request.user, review=review)

@@ -66,11 +66,25 @@ class Category(models.Model):
     def __str__(self):
         return self.name
 
+from users.models import User
+
+
+class Title(models.Model):
+    pass
+
+
+class Category(models.Model):
+    pass
+
+
+class Genre(models.Model):
+    pass
+
 
 class Review(models.Model):
     text = models.TextField()
     author = models.ForeignKey(
-        User, on_delete=models.CASCADE)
+        User, on_delete=models.CASCADE, related_name='reviews')
     score = models.IntegerField(validators=[
         MaxValueValidator(10),
         MinValueValidator(1)
@@ -87,7 +101,7 @@ class Review(models.Model):
 class Comment(models.Model):
     text = models.TextField()
     author = models.ForeignKey(
-        User, on_delete=models.CASCADE)
+        User, on_delete=models.CASCADE, related_name='comments')
     pub_date = models.DateTimeField(
         'Дата добавления', auto_now_add=True, db_index=True)
     review = models.ForeignKey(
