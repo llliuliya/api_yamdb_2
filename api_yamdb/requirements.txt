@@ -3,7 +3,6 @@ attrs==21.4.0
 certifi==2022.6.15
 charset-normalizer==2.0.12
 Django==2.2.16
-django-filter==22.1
 djangorestframework==3.12.4
 idna==3.3
 importlib-metadata==4.11.4

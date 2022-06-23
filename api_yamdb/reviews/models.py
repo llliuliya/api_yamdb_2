@@ -29,15 +29,18 @@ class Title(models.Model):
 
 
 class GenreTitle(models.Model):
-    category = models.ForeignKey(
-        'Category',
+    genre = models.ForeignKey(
+        'Genre',
         on_delete=models.CASCADE,
-        related_name='genre_title'
+        related_name='genre'
     )
-    title = models.ForeignKey(Title, on_delete=models.CASCADE)
+    title = models.ForeignKey(
+        Title,
+        on_delete=models.CASCADE,
+        related_name='title')
 
     def __str__(self):
-        return f'{self.category} {self.title}'
+        return f'{self.genre} {self.title}'
 
 
 class Genre(models.Model):
