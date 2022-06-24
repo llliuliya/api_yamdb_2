@@ -1,4 +1,5 @@
 import datetime as dt
+from email.policy import default
 from rest_framework import serializers
 
 from reviews.models import Category, Comment, Genre, Review, Title
@@ -48,11 +49,19 @@ class TitleWriteSerializer(TitleReadSerializer):
 
 class ReviewSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
-        slug_field='username', read_only=True)
+        slug_field='username',
+        default=serializers.CurrentUserDefault,
+        read_only=True)
+
+    def create(self, validated_data):
+        try:
+            return super().create(validated_data)
+        except Exception:
+            raise serializers.ValidationError('Вы уже оставили свой  отзыв.')
 
     class Meta:
-        fields = '__all__'
-        read_only_fields = ('title',)
+        fields = ('id', 'text', 'author', 'score', 'pub_date',)
+        read_only_fields = ('author', 'pub_date',)
         model = Review
 
 
@@ -61,6 +70,6 @@ class CommentSerializer(serializers.ModelSerializer):
         slug_field='username', read_only=True)
 
     class Meta:
-        fields = '__all__'
-        read_only_fields = ('title',)
+        fields = ('id', 'text', 'author', 'pub_date',)
+        read_only_fields = ('author', 'pub_date',)
         model = Comment
