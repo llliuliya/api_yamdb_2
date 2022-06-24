@@ -1,10 +1,9 @@
-from django.contrib.auth import get_user_model
 from django.db import models
 from django.core.validators import (RegexValidator,
                                     MaxValueValidator,
                                     MinValueValidator)
 
-User = get_user_model()
+from users.models import User
 
 
 class Title(models.Model):
@@ -66,20 +65,6 @@ class Category(models.Model):
     def __str__(self):
         return self.name
 
-from users.models import User
-
-
-class Title(models.Model):
-    pass
-
-
-class Category(models.Model):
-    pass
-
-
-class Genre(models.Model):
-    pass
-
 
 class Review(models.Model):
     text = models.TextField()
@@ -90,9 +75,15 @@ class Review(models.Model):
         MinValueValidator(1)
     ])
     pub_date = models.DateTimeField(
-        'Дата добавления', auto_now_add=True, db_index=True)
+        'Дата публикации', auto_now_add=True, db_index=True)
     title = models.ForeignKey(
         Title, on_delete=models.CASCADE, related_name='reviews')
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['title', 'author'],
+                name='unique_review')]
 
     def __str__(self):
         return self.text, self.score
@@ -103,7 +94,7 @@ class Comment(models.Model):
     author = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='comments')
     pub_date = models.DateTimeField(
-        'Дата добавления', auto_now_add=True, db_index=True)
+        'Дата публикации', auto_now_add=True, db_index=True)
     review = models.ForeignKey(
         Review, on_delete=models.CASCADE, related_name='comments')
 
