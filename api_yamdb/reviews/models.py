@@ -44,7 +44,10 @@ class GenreTitle(models.Model):
 
 class Genre(models.Model):
     name = models.CharField(max_length=256)
-    slug = models.SlugField(max_length=50, unique=True)
+    slug = models.SlugField(
+        max_length=50,
+        unique=True
+    )
 
     def __str__(self):
         return self.name
@@ -69,34 +72,53 @@ class Category(models.Model):
 class Review(models.Model):
     text = models.TextField()
     author = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='reviews')
+        User,
+        on_delete=models.CASCADE,
+        related_name='reviews'
+    )
     score = models.IntegerField(validators=[
         MaxValueValidator(10),
         MinValueValidator(1)
     ])
     pub_date = models.DateTimeField(
-        'Дата публикации', auto_now_add=True, db_index=True)
+        'Дата публикации',
+        auto_now_add=True,
+        db_index=True
+    )
     title = models.ForeignKey(
-        Title, on_delete=models.CASCADE, related_name='reviews')
+        Title,
+        on_delete=models.CASCADE,
+        related_name='reviews'
+    )
 
     class Meta:
         constraints = [
             models.UniqueConstraint(
                 fields=['title', 'author'],
-                name='unique_review')]
+                name='unique_review')
+        ]
 
     def __str__(self):
-        return self.text, self.score
+        return f'{self.text}, {self.score}'
 
 
 class Comment(models.Model):
     text = models.TextField()
     author = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='comments')
+        User,
+        on_delete=models.CASCADE,
+        related_name='comments'
+    )
     pub_date = models.DateTimeField(
-        'Дата публикации', auto_now_add=True, db_index=True)
+        'Дата публикации',
+        auto_now_add=True,
+        db_index=True
+    )
     review = models.ForeignKey(
-        Review, on_delete=models.CASCADE, related_name='comments')
+        Review,
+        on_delete=models.CASCADE,
+        related_name='comments'
+    )
 
     def __str__(self):
         return self.text
