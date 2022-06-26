@@ -1,9 +1,7 @@
 import datetime as dt
-from email.policy import default
 from rest_framework import serializers
 
 from reviews.models import Category, Comment, Genre, Review, Title
-from users.models import User
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -21,7 +19,7 @@ class GenreSerializer(serializers.ModelSerializer):
 class TitleReadSerializer(serializers.ModelSerializer):
     genre = GenreSerializer(read_only=True, many=True)
     category = CategorySerializer(read_only=True)
-    rating = serializers.IntegerField(read_only=True, required=False)
+    rating = serializers.FloatField(read_only=True, required=False)
 
     class Meta:
         fields = '__all__'
@@ -30,10 +28,13 @@ class TitleReadSerializer(serializers.ModelSerializer):
 
 class TitleWriteSerializer(TitleReadSerializer):
     genre = serializers.SlugRelatedField(
-        queryset=Genre.objects.all(), slug_field='slug', many=True
+        queryset=Genre.objects.all(),
+        slug_field='slug',
+        many=True
     )
     category = serializers.SlugRelatedField(
-        queryset=Category.objects.all(), slug_field='slug'
+        queryset=Category.objects.all(),
+        slug_field='slug'
     )
 
     class Meta:
@@ -48,10 +49,15 @@ class TitleWriteSerializer(TitleReadSerializer):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
+    title = serializers.SlugRelatedField(
+        slug_field='name',
+        read_only=True
+    )
     author = serializers.SlugRelatedField(
         slug_field='username',
         default=serializers.CurrentUserDefault,
-        read_only=True)
+        read_only=True
+    )
 
     def create(self, validated_data):
         try:
@@ -60,16 +66,22 @@ class ReviewSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('Вы уже оставили свой  отзыв.')
 
     class Meta:
-        fields = ('id', 'text', 'author', 'score', 'pub_date',)
-        read_only_fields = ('author', 'pub_date',)
+        fields = '__all__'
+        read_only_fields = ('pub_date',)
         model = Review
 
 
 class CommentSerializer(serializers.ModelSerializer):
+    review = serializers.SlugRelatedField(
+        slug_field='text',
+        read_only=True
+    )
     author = serializers.SlugRelatedField(
-        slug_field='username', read_only=True)
+        slug_field='username',
+        read_only=True
+    )
 
     class Meta:
-        fields = ('id', 'text', 'author', 'pub_date',)
-        read_only_fields = ('author', 'pub_date',)
+        fields = '__all__'
+        read_only_fields = ('pub_date',)
         model = Comment
