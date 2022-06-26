@@ -126,3 +126,5 @@ SIMPLE_JWT = {
 }
 
 AUTH_USER_MODEL = 'users.User'
+
+AUTH_EMAIL = 'yamdb@gmail.com'
