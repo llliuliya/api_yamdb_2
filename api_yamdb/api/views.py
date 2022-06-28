@@ -1,7 +1,9 @@
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
-from rest_framework import filters, mixins, viewsets
+from rest_framework import filters, mixins, status, viewsets
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from django_filters.rest_framework import DjangoFilterBackend
 
 from .serializers import (CategorySerializer,
@@ -10,13 +12,15 @@ from .serializers import (CategorySerializer,
                           ReviewSerializer,
                           TitleReadSerializer,
                           TitleWriteSerializer)
-from .permissions import IsAdminUserOrReadOnly, IsAdminModeratorAuthorOrReadOnly
-from reviews.models import Category, Comment, Genre, Review, Title
+from .permissions import (IsAdminUserOrReadOnly,
+                          IsAdminModeratorAuthorOrReadOnly)
+from reviews.models import Category, Genre, Review, Title
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.annotate(rating=Avg("reviews__score"))
+    queryset = Title.objects.annotate(rating=Avg('reviews__score'))
     permission_classes = (IsAdminUserOrReadOnly,)
+    pagination_class = PageNumberPagination
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ('category', 'genre', 'name', 'year')
 
@@ -36,7 +40,7 @@ class MixinSet(mixins.CreateModelMixin,
 class CategoryViewSet(MixinSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    permission_classes = (IsAdminUserOrReadOnly,)
+    permission_classes = (IsAuthenticatedOrReadOnly, IsAdminUserOrReadOnly)
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
     lookup_field = 'slug'
@@ -45,10 +49,20 @@ class CategoryViewSet(MixinSet):
 class GenreViewSet(MixinSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
-    permission_classes = (IsAdminUserOrReadOnly,)
+    permission_classes = (IsAuthenticatedOrReadOnly, IsAdminUserOrReadOnly)
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
     lookup_field = 'slug'
+
+    def destroy(self, request, *args, **kwargs):
+        genre = get_object_or_404(Genre, slug=kwargs['slug'])
+        if request.user.is_admin or request.user.is_superuser:
+            self.perform_destroy(genre)
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(status=status.HTTP_403_FORBIDDEN)
+
+    def perform_destroy(self, genre):
+        genre.delete()
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
