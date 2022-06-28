@@ -1,7 +1,7 @@
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from rest_framework import filters, mixins, status, viewsets
-from rest_framework.pagination import PageNumberPagination
+from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from django_filters.rest_framework import DjangoFilterBackend
@@ -15,19 +15,20 @@ from .serializers import (CategorySerializer,
 from .permissions import (IsAdminUserOrReadOnly,
                           IsAdminModeratorAuthorOrReadOnly)
 from reviews.models import Category, Genre, Review, Title
+from .filters import TitleFilter
 
 
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.annotate(rating=Avg('reviews__score'))
     permission_classes = (IsAdminUserOrReadOnly,)
-    pagination_class = PageNumberPagination
-    filter_backends = (DjangoFilterBackend,)
-    filterset_fields = ('category', 'genre', 'name', 'year')
+    pagination_class = LimitOffsetPagination
+    filter_backends = (DjangoFilterBackend, filters.SearchFilter)
+    filterset_class = TitleFilter
 
     def get_serializer_class(self):
-        if self.request.method in ["POST", "PATCH"]:
-            return TitleWriteSerializer
-        return TitleReadSerializer
+        if self.request.method == 'GET':
+            return TitleReadSerializer
+        return TitleWriteSerializer
 
 
 class MixinSet(mixins.CreateModelMixin,
@@ -68,7 +69,7 @@ class GenreViewSet(MixinSet):
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
     permission_classes = (IsAdminModeratorAuthorOrReadOnly,)
-    pagination_class = PageNumberPagination
+    pagination_class = LimitOffsetPagination
 
     def get_queryset(self):
         title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
@@ -82,7 +83,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
     permission_classes = (IsAdminModeratorAuthorOrReadOnly,)
-    pagination_class = PageNumberPagination
+    pagination_class = LimitOffsetPagination
 
     def get_queryset(self):
         review = get_object_or_404(Review, id=self.kwargs.get('review_id'))

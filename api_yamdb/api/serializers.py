@@ -55,9 +55,6 @@ class ReviewSerializer(serializers.ModelSerializer):
     )
     author = serializers.SlugRelatedField(
         slug_field='username',
-        # Лиан, я не поняла, для чего эта строчка, на нее выходили ошибки
-        # тестов, поэтому я ее закоментила.
-        # default=serializers.CurrentUserDefault,
         read_only=True
     )
 
