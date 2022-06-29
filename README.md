@@ -15,29 +15,36 @@ git clone git@github.com:LianaVolkova/api_yamdb.git
 ```
 
 ```
-cd api_yatube
+cd api_yamdb
 ```
 
-Cоздать и активировать виртуальное окружение:
+Cоздать виртуальное окружение:
 
 ```
+# для Windows-систем:
 py -m venv venv
+
+# для *nix-систем:
+python3 -m venv venv   
 ```
 
-Для *nix-систем:
+Активировать виртуальное окружение:
 
-```bash 
+```
+# для Windows-систем:
+source venv/Scripts/activate
+
+# для *nix-систем:
 source venv/bin/activate
 ```
 
-Для windows-систем:
-
-```bash 
-source venv/Scripts/activate
+Обновить pip:
 ```
-
-```
+# для Windows-систем:
 py -m pip install --upgrade pip
+
+# для *nix-систем:
+python3 -m pip install --upgrade pip
 ```
 
 Установить зависимости из файла requirements.txt:
@@ -49,13 +56,21 @@ pip install -r requirements.txt
 Выполнить миграции:
 
 ```
+# для Windows-систем:
 py manage.py migrate
+
+# для *nix-систем:
+python3 manage.py migrate
 ```
 
 Запустить проект:
 
 ```
+# для Windows-систем:
 py manage.py runserver
+
+# для *nix-систем:
+python3 manage.py runserver
 ```
 
 Документация с примерами запросов и ответов на них по адресу 

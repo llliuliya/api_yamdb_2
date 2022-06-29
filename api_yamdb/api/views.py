@@ -14,11 +14,12 @@ from .serializers import (CategorySerializer,
                           TitleWriteSerializer)
 from .permissions import (IsAdminUserOrReadOnly,
                           IsAdminModeratorAuthorOrReadOnly)
-from reviews.models import Category, Genre, Review, Title
 from .filters import TitleFilter
+from reviews.models import Category, Genre, Review, Title
 
 
 class TitleViewSet(viewsets.ModelViewSet):
+    """Вьюсет для объектов модели Title."""
     queryset = Title.objects.annotate(rating=Avg('reviews__score'))
     permission_classes = (IsAdminUserOrReadOnly,)
     pagination_class = LimitOffsetPagination
@@ -35,10 +36,12 @@ class MixinSet(mixins.CreateModelMixin,
                mixins.ListModelMixin,
                mixins.DestroyModelMixin,
                viewsets.GenericViewSet):
+    """Базовый вьюсет."""
     pass
 
 
 class CategoryViewSet(MixinSet):
+    """Вьюсет для объектов модели Category."""
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = (IsAuthenticatedOrReadOnly, IsAdminUserOrReadOnly)
@@ -48,6 +51,7 @@ class CategoryViewSet(MixinSet):
 
 
 class GenreViewSet(MixinSet):
+    """Вьюсет для объектов модели Genre."""
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     permission_classes = (IsAuthenticatedOrReadOnly, IsAdminUserOrReadOnly)
@@ -67,6 +71,7 @@ class GenreViewSet(MixinSet):
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
+    """Вьюсет для объектов модели Review."""
     serializer_class = ReviewSerializer
     permission_classes = (IsAdminModeratorAuthorOrReadOnly,)
     pagination_class = LimitOffsetPagination
@@ -81,6 +86,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 
 class CommentViewSet(viewsets.ModelViewSet):
+    """Вьюсет для объектов модели Comment."""
     serializer_class = CommentSerializer
     permission_classes = (IsAdminModeratorAuthorOrReadOnly,)
     pagination_class = LimitOffsetPagination

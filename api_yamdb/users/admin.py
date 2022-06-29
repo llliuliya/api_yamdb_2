@@ -4,13 +4,13 @@ from .models import User
 
 
 class BaseAdminSettings(admin.ModelAdmin):
-    """Панель Админа"""
+    """Панель Админа."""
     empty_value_display = '-empty-'
     list_filter = ('role', 'username')
 
 
 class UsersAdmin(BaseAdminSettings):
-    """Оформление панели админа"""
+    """Оформление панели админа."""
     list_display = (
         'id',
         'username',

@@ -3,13 +3,14 @@ import os
 
 from django.core.management.base import BaseCommand
 
-from reviews.models import (Category, Comment, Genre, GenreTitle,
-                            Review, Title)
+from reviews.models import (
+    Category, Comment, Genre, GenreTitle, Review, Title
+)
 from users.models import User
 
 
 class Command(BaseCommand):
-
+    """Менеджмент-команда для заполнения БД из файлов CSV."""
     csv_model = {
         'category.csv':
             (Category.objects.get_or_create, 'dict(name=row[1], slug=row[2])'),

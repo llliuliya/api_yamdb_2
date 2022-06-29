@@ -1,12 +1,14 @@
+from django.contrib.auth import get_user_model
 from django.db import models
 from django.core.validators import (RegexValidator,
                                     MaxValueValidator,
                                     MinValueValidator)
 
-from users.models import User
+User = get_user_model()
 
 
 class Title(models.Model):
+    """Модель для произведений."""
     name = models.CharField(max_length=200)
     year = models.IntegerField()
     description = models.TextField(null=True)
@@ -28,6 +30,7 @@ class Title(models.Model):
 
 
 class GenreTitle(models.Model):
+    """Вспомогательная модель для связи жанров и произведений."""
     genre = models.ForeignKey(
         'Genre',
         on_delete=models.CASCADE,
@@ -43,6 +46,7 @@ class GenreTitle(models.Model):
 
 
 class Genre(models.Model):
+    """Модель для жанров."""
     name = models.CharField(max_length=256)
     slug = models.SlugField(
         max_length=50,
@@ -54,6 +58,7 @@ class Genre(models.Model):
 
 
 class Category(models.Model):
+    """Модель для категорий."""
     name = models.CharField(max_length=256)
     slug = models.SlugField(
         max_length=50,
@@ -70,6 +75,7 @@ class Category(models.Model):
 
 
 class Review(models.Model):
+    """Модель для отзывов."""
     text = models.TextField()
     author = models.ForeignKey(
         User,
@@ -103,6 +109,7 @@ class Review(models.Model):
 
 
 class Comment(models.Model):
+    """Модель для комментариев к отзывам."""
     text = models.TextField()
     author = models.ForeignKey(
         User,

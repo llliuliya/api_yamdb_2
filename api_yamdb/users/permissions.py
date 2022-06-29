@@ -2,6 +2,7 @@ from rest_framework import permissions
 
 
 class Admin(permissions.BasePermission):
+    """Права доступа для админа."""
     def has_permission(self, request, view):
         if request.user.is_authenticated:
             return request.user.role == 'admin'
@@ -14,6 +15,7 @@ class Admin(permissions.BasePermission):
 
 
 class User(permissions.BasePermission):
+    """Права доступа для аутентифицированных пользователей."""
     def has_permission(self, request, view):
         return request.user.is_authenticated
 
@@ -22,6 +24,7 @@ class User(permissions.BasePermission):
 
 
 class ReadOnly(permissions.BasePermission):
+    """Права доступа для анонимов."""
     def has_permission(self, request, view):
         return request.method in permissions.SAFE_METHODS
 
@@ -30,6 +33,7 @@ class ReadOnly(permissions.BasePermission):
 
 
 class Superuser(permissions.BasePermission):
+    """Права доступа для суперюзера."""
     def has_permission(self, request, view):
         if request.user.is_authenticated:
             return request.user.is_superuser
@@ -42,6 +46,7 @@ class Superuser(permissions.BasePermission):
 
 
 class Moderator(permissions.BasePermission):
+    """Права доступа для модератора."""
     def has_permission(self, request, view):
         if request.user.is_authenticated:
             return request.user.role == 'moderator'

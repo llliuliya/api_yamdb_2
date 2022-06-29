@@ -12,8 +12,7 @@ from rest_framework.response import Response
 
 from .serializers import (UserSelfSerializer,
                           UserSerializer,
-                          UserSignUpSerializer
-                          )
+                          UserSignUpSerializer)
 from .services import check_token, generate_token
 from .permissions import Admin, Superuser
 
@@ -22,7 +21,7 @@ User = get_user_model()
 
 @api_view(['POST'])
 def sign_up(request):
-
+    """View-функция для регистрации нового пользователя."""
     username = request.data.get('username')
     email = request.data.get('email')
     try:
@@ -50,6 +49,7 @@ def sign_up(request):
 
 @api_view(['POST'])
 def retrieve_token(request):
+    """View-функция для получения JWT-токена."""
     serializer = UserSignUpSerializer(data=request.data)
     if serializer.is_valid(raise_exception=True):
         user = get_object_or_404(User, username=request.data.get('username'))
@@ -70,6 +70,7 @@ def retrieve_token(request):
 
 
 class UsersViewSet(viewsets.ModelViewSet):
+    """Вьюсет для объектов модели User."""
     queryset = User.objects.all()
     serializer_class = UserSerializer
     http_method_names = ['get', 'post', 'patch', 'delete']
