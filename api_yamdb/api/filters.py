@@ -4,6 +4,7 @@ from reviews.models import Title
 
 
 class TitleFilter(filters.FilterSet):
+    """Класс фильтра для полей Title."""
     genre = filters.CharFilter(field_name='genre__slug')
     category = filters.CharFilter(field_name='category__slug')
     year = filters.NumberFilter(field_name='year')

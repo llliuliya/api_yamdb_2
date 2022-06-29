@@ -9,7 +9,7 @@ ROLES = (
 
 
 class User(AbstractUser):
-
+    """Модель для пользователей."""
     email = models.EmailField(
         blank=False,
         max_length=254,

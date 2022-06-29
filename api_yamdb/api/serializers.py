@@ -5,18 +5,21 @@ from reviews.models import Category, Comment, Genre, Review, Title
 
 
 class CategorySerializer(serializers.ModelSerializer):
+    """Сериализатор для категорий."""
     class Meta:
         fields = ('name', 'slug')
         model = Category
 
 
 class GenreSerializer(serializers.ModelSerializer):
+    """Сериализатор для жанров."""
     class Meta:
         fields = ('name', 'slug')
         model = Genre
 
 
 class TitleReadSerializer(serializers.ModelSerializer):
+    """Сериализатор для произведений (чтение)."""
     genre = GenreSerializer(read_only=True, many=True)
     category = CategorySerializer(read_only=True)
     rating = serializers.FloatField(read_only=True, required=False)
@@ -27,6 +30,7 @@ class TitleReadSerializer(serializers.ModelSerializer):
 
 
 class TitleWriteSerializer(TitleReadSerializer):
+    """Сериализатор для произведений (запись)."""
     genre = serializers.SlugRelatedField(
         queryset=Genre.objects.all(),
         slug_field='slug',
@@ -42,6 +46,7 @@ class TitleWriteSerializer(TitleReadSerializer):
         model = Title
 
     def validate_year(self, value):
+        """Год выпуска не может быть больше текущего."""
         this_year = dt.datetime.now().year
         if this_year < value < 0:
             raise serializers.ValidationError('Проверьте год произведения!')
@@ -49,6 +54,7 @@ class TitleWriteSerializer(TitleReadSerializer):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
+    """Сериализатор для отзывов."""
     title = serializers.SlugRelatedField(
         slug_field='name',
         read_only=True
@@ -71,6 +77,7 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
+    """Сериализатор для комментариев к отзывам."""
     review = serializers.SlugRelatedField(
         slug_field='text',
         read_only=True
