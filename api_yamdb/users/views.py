@@ -22,26 +22,24 @@ User = get_user_model()
 @api_view(['POST'])
 def sign_up(request):
     """View-функция для регистрации нового пользователя."""
-    username = request.data.get('username')
-    email = request.data.get('email')
-    try:
-        user = User.objects.get(username=username, email=email)
-    except User.DoesNotExist:
-        serializer = UserSerializer(data=request.data)
-        if serializer.is_valid(raise_exception=True):
-            user = serializer.save()
+    serializer = UserSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    serializer.save()
+    user = get_object_or_404(
+        User,
+        username=serializer.validated_data['username']
+    )
     token = generate_token(user)
     send_mail(
         'Yamdb confirmation code',
         f'{token}',
         settings.AUTH_EMAIL,
-        [f'{email}']
+        [f'{user.email}']
     )
-
     return Response(
         {
-            "username": username,
-            "email": email
+            "username": user.username,
+            "email": user.email
         },
         status=status.HTTP_200_OK
     )

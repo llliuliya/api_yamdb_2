@@ -76,16 +76,21 @@ class Category(models.Model):
 
 class Review(models.Model):
     """Модель для отзывов."""
-    text = models.TextField()
+    text = models.TextField(
+        help_text='Добавьте отзыв на произведение'
+    )
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name='reviews'
     )
-    score = models.IntegerField(validators=[
-        MaxValueValidator(10),
-        MinValueValidator(1)
-    ])
+    score = models.IntegerField(
+        help_text='Поставьте оценку от 1 до 10',
+        validators=[
+            MaxValueValidator(10),
+            MinValueValidator(1)
+        ]
+    )
     pub_date = models.DateTimeField(
         'Дата публикации',
         auto_now_add=True,
@@ -110,7 +115,9 @@ class Review(models.Model):
 
 class Comment(models.Model):
     """Модель для комментариев к отзывам."""
-    text = models.TextField()
+    text = models.TextField(
+        help_text='Доавьте комментарий'
+    )
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,

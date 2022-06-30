@@ -23,15 +23,6 @@ class User(permissions.BasePermission):
         return request.user == obj.author
 
 
-class ReadOnly(permissions.BasePermission):
-    """Права доступа для анонимов."""
-    def has_permission(self, request, view):
-        return request.method in permissions.SAFE_METHODS
-
-    def has_object_permission(self, request, view, obj):
-        return request.method in permissions.SAFE_METHODS
-
-
 class Superuser(permissions.BasePermission):
     """Права доступа для суперюзера."""
     def has_permission(self, request, view):

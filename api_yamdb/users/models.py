@@ -16,6 +16,7 @@ class User(AbstractUser):
         unique=True
     )
     bio = models.TextField(
+        help_text='Добавьте биографию пользователя',
         blank=True
     )
     role = models.TextField(
