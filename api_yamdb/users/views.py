@@ -1,3 +1,5 @@
+import uuid
+
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django.core.mail import send_mail
@@ -13,8 +15,8 @@ from rest_framework.response import Response
 from .serializers import (UserSelfSerializer,
                           UserSerializer,
                           UserSignUpSerializer)
-from .services import check_token, generate_token
-from .permissions import Admin, Superuser
+from .services import check_token
+from .permissions import AdminOrSuperUser
 
 User = get_user_model()
 
@@ -24,15 +26,17 @@ def sign_up(request):
     """View-функция для регистрации нового пользователя."""
     serializer = UserSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    serializer.save()
-    user = get_object_or_404(
-        User,
-        username=serializer.validated_data['username']
+    email = serializer.validated_data['email']
+    username = serializer.validated_data['username']
+    user, create = User.objects.get_or_create(
+        username=username,
+        email=email
     )
-    token = generate_token(user)
+    user.confirmation_code = str(uuid.uuid4())
+    user.save()
     send_mail(
         'Yamdb confirmation code',
-        f'{token}',
+        f'{user.confirmation_code}',
         settings.AUTH_EMAIL,
         [f'{user.email}']
     )
@@ -71,8 +75,7 @@ class UsersViewSet(viewsets.ModelViewSet):
     """Вьюсет для объектов модели User."""
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    http_method_names = ['get', 'post', 'patch', 'delete']
-    permission_classes = [Admin | Superuser]
+    permission_classes = [AdminOrSuperUser]
     lookup_field = 'username'
     pagination_class = PageNumberPagination
 

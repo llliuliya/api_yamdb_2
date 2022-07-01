@@ -1,49 +1,18 @@
 from rest_framework import permissions
 
 
-class Admin(permissions.BasePermission):
+class AdminOrSuperUser(permissions.BasePermission):
     """Права доступа для админа."""
     def has_permission(self, request, view):
-        if request.user.is_authenticated:
-            return request.user.role == 'admin'
-        return False
+        return (
+            request.user.is_authenticated
+            and (
+                request.user.is_admin
+                or request.user.is_superuser)
+        )
 
     def has_object_permission(self, request, view, obj):
-        if request.user.is_authenticated:
-            return request.user.role == 'admin'
-        return False
-
-
-class User(permissions.BasePermission):
-    """Права доступа для аутентифицированных пользователей."""
-    def has_permission(self, request, view):
-        return request.user.is_authenticated
-
-    def has_object_permission(self, request, view, obj):
-        return request.user == obj.author
-
-
-class Superuser(permissions.BasePermission):
-    """Права доступа для суперюзера."""
-    def has_permission(self, request, view):
-        if request.user.is_authenticated:
-            return request.user.is_superuser
-        return False
-
-    def has_object_permission(self, request, view, obj):
-        if request.user.is_authenticated:
-            return request.user.is_superuser
-        return False
-
-
-class Moderator(permissions.BasePermission):
-    """Права доступа для модератора."""
-    def has_permission(self, request, view):
-        if request.user.is_authenticated:
-            return request.user.role == 'moderator'
-        return False
-
-    def has_object_permission(self, request, view, obj):
-        if request.user.is_authenticated:
-            return request.user.role == 'moderator'
-        return False
+        return (
+            obj == request.user
+            or request.user.is_admin
+            or request.user.is_superuser)
