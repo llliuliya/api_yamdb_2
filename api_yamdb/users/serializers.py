@@ -19,6 +19,9 @@ class UserSignUpSerializer(serializers.Serializer):
     username = serializers.CharField()
     confirmation_code = serializers.CharField()
 
+    class Meta:
+        fields = ('username', 'confirmation_code')
+
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
