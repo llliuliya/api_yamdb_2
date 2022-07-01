@@ -16,6 +16,7 @@ FIELDS = (
 
 
 class UserSignUpSerializer(serializers.Serializer):
+    """ Получение токена и регистрация нового пользователя. """
     username = serializers.CharField()
     confirmation_code = serializers.CharField()
 
@@ -24,6 +25,7 @@ class UserSignUpSerializer(serializers.Serializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    """ Получение кода подтверждения для регистрации пользователя. """
     class Meta:
         model = User
         fields = FIELDS
@@ -35,6 +37,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class UserSelfSerializer(UserSerializer):
+    """ Создание пользователя. """
     class Meta:
         model = User
         fields = FIELDS
