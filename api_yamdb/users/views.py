@@ -1,21 +1,22 @@
 from django.conf import settings
-from django.shortcuts import get_object_or_404
-from django.core.mail import send_mail
 from django.contrib.auth import get_user_model
+from django.core.mail import send_mail
+from django.shortcuts import get_object_or_404
+
 from rest_framework import status, viewsets
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.pagination import PageNumberPagination
 from rest_framework.decorators import action, api_view
-from rest_framework_simplejwt.tokens import AccessToken
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from rest_framework_simplejwt.tokens import AccessToken
 
+from .permissions import AdminOrSuperUser
 from .serializers import (UserSelfSerializer,
                           UserSerializer,
                           UserSignUpSerializer
                           )
-from .services import generate_token, check_token
-from .permissions import AdminOrSuperUser
+from .services import check_token, generate_token
 
 User = get_user_model()
 
@@ -26,17 +27,12 @@ def sign_up(request):
     и отправки ему на почту кода подтверждения."""
     serializer = UserSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    email = serializer.validated_data['email']
-    username = serializer.validated_data['username']
-    user, create = User.objects.get_or_create(
-        username=username,
-        email=email
-    )
-    confirmation_code = generate_token(user)
+    user, created = User.objects.get_or_create(**serializer.validated_data)
+    user.confirmation_code = generate_token(user)
     user.save()
     send_mail(
         subject='Yamdb confirmation code',
-        message=f'Ваш код подтверждения: {confirmation_code}',
+        message=f'Ваш код подтверждения: {user.confirmation_code}',
         from_email=settings.AUTH_EMAIL,
         recipient_list=[user.email]
     )
@@ -51,7 +47,6 @@ def retrieve_token(request):
     """View-функция для получения JWT-токена по коду подтверждения
     и регистрации пользователя"""
     serializer = UserSignUpSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
     if serializer.is_valid(raise_exception=True):
         user = get_object_or_404(User, username=request.data.get('username'))
         if check_token(user, request.data.get('confirmation_code')):

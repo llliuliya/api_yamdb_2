@@ -24,6 +24,10 @@ class User(AbstractUser):
         choices=ROLES,
         default='user'
     )
+    confirmation_code = models.CharField(
+        max_length=100,
+        blank=True
+    )
 
     class Meta:
         ordering = ['-id']
