@@ -14,8 +14,8 @@ from rest_framework_simplejwt.tokens import AccessToken
 from .permissions import AdminOrSuperUser
 from .serializers import (UserSelfSerializer,
                           UserSerializer,
-                          UserSignUpSerializer
-                          )
+                          UserSignUpSerializer,
+                          UserTokenSerializer)
 from .services import check_token, generate_token
 
 User = get_user_model()
@@ -25,9 +25,13 @@ User = get_user_model()
 def sign_up(request):
     """View-функция для создания нового пользователя
     и отправки ему на почту кода подтверждения."""
-    serializer = UserSerializer(data=request.data)
+    # TODO: использовать нужный сериалайзер
+    # Получить пользователя из него.
+    # Образец: user = serializer.save()
+
+    serializer = UserSignUpSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    user, created = User.objects.get_or_create(**serializer.validated_data)
+    user = serializer.save()
     user.confirmation_code = generate_token(user)
     user.save()
     send_mail(
@@ -46,7 +50,8 @@ def sign_up(request):
 def retrieve_token(request):
     """View-функция для получения JWT-токена по коду подтверждения
     и регистрации пользователя"""
-    serializer = UserSignUpSerializer(data=request.data)
+    # TODO: Заюзать нужный сериалайзер.
+    serializer = UserTokenSerializer(data=request.data)
     if serializer.is_valid(raise_exception=True):
         user = get_object_or_404(User, username=request.data.get('username'))
         if check_token(user, request.data.get('confirmation_code')):
