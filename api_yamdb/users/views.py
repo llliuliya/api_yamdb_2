@@ -29,9 +29,10 @@ def sign_up(request):
     # Получить пользователя из него.
     # Образец: user = serializer.save()
 
-    serializer = UserSignUpSerializer(data=request.data)
+    serializer = ...
     serializer.is_valid(raise_exception=True)
-    user = serializer.save()
+    user = ...
+
     user.confirmation_code = generate_token(user)
     user.save()
     send_mail(
@@ -51,7 +52,7 @@ def retrieve_token(request):
     """View-функция для получения JWT-токена по коду подтверждения
     и регистрации пользователя"""
     # TODO: Заюзать нужный сериалайзер.
-    serializer = UserTokenSerializer(data=request.data)
+    serializer = ...
     if serializer.is_valid(raise_exception=True):
         user = get_object_or_404(User, username=request.data.get('username'))
         if check_token(user, request.data.get('confirmation_code')):
