@@ -15,7 +15,7 @@ from .permissions import AdminOrSuperUser
 from .serializers import (UserSelfSerializer,
                           UserSerializer,
                           UserSignUpSerializer,
-                          UserTokenSerializer)
+                          TokenSerializer,)
 from .services import check_token, generate_token
 
 User = get_user_model()
@@ -29,9 +29,9 @@ def sign_up(request):
     # Получить пользователя из него.
     # Образец: user = serializer.save()
 
-    serializer = ...
+    serializer = UserSignUpSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    user = ...
+    user = serializer.save()
 
     user.confirmation_code = generate_token(user)
     user.save()
@@ -52,7 +52,7 @@ def retrieve_token(request):
     """View-функция для получения JWT-токена по коду подтверждения
     и регистрации пользователя"""
     # TODO: Заюзать нужный сериалайзер.
-    serializer = ...
+    serializer = TokenSerializer
     if serializer.is_valid(raise_exception=True):
         user = get_object_or_404(User, username=request.data.get('username'))
         if check_token(user, request.data.get('confirmation_code')):

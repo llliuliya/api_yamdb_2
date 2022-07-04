@@ -10,6 +10,9 @@ ROLES = (
 
 class User(AbstractUser):
     """Модель для пользователей."""
+    username = models.CharField(
+        max_length=150,
+        unique=True)
     email = models.EmailField(
         blank=False,
         max_length=254,
