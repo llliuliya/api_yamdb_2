@@ -15,53 +15,58 @@ FIELDS = (
 )
 
 
-# TODO: Нужен сериалайзер, для Модели. Чтобы в нем создать пользователя.
-# Для почты используй EmailField - в нем уже есть валидация почты.
 class UserSignUpSerializer(serializers.ModelSerializer):
-    """Создание пользователя, отправка на почту кода."""
-    ...
+    """Создание пользователя и отправка на почту кода подтверждения."""
+    username = serializers.CharField()
+    email = serializers.EmailField()
 
     class Meta:
         model = User
         fields = ('username', 'email')
 
-    # TODO: Добавить валидацию на проверку уникальности username и email
-    # Запрет использование username == 'me'
     def validate(self, data):
-        ...
+        """ Проверяем уникальность usernаme и email. """
+        email = data['email']
+        username = data['username']
+
+        if username == 'me':
+            raise serializers.ValidationError("Нельзя использовать имя me.")
+
+        if User.objects.filter(email=email).exists():
+            raise serializers.ValidationError(
+                "Почтовый ящик должен быть уникальным.")
+
+        if User.objects.filter(username=username).exists():
+            raise serializers.ValidationError("Имя должно быть уникальным.")
+
         return data
 
 
-# TODO: Создать отдельный сериалайзер для проверки переданных данных.
 class UserTokenSerializer(serializers.Serializer):
-    """Получение токена."""
-    ...
+    """Получение токена по коду подтверждения."""
+    username = serializers.CharField()
+    confirmation_code = serializers.CharField()
 
     class Meta:
-        ...
+        fields = ('username', 'confirmation_code')
 
-    # TODO: Добавить валидацию, чтобы проверить код.
-    # Получить пользователя с помощью get_object_or_404. Чтобы, если нет
-    # юзера с переданными username, то вернуть 404.
     def validate(self, attrs):
-        ...
+        """ Проверяем наличие кода подтверждения у пользователя. """
+        user = get_object_or_404(User, username=attrs.get('username'))
+        if user.confirmation_code != attrs.get('confirmation_code'):
+            raise serializers.ValidationError("Неверный код подтверждения.")
         return attrs
 
 
 class UserSerializer(serializers.ModelSerializer):
-    """ Получение кода подтверждения для регистрации пользователя. """
+    """ Сериализатор для модели User. """
     class Meta:
         model = User
         fields = FIELDS
 
-    def validate_username(self, value):
-        if value == 'me':
-            raise serializers.ValidationError("выберите другое имя")
-        return value
 
-
-class UserSelfSerializer(UserSerializer):
-    """ Создание пользователя. """
+class UserSelfSerializer(serializers.ModelSerializer):
+    """ Сериализатор для объекта класса User. """
     class Meta:
         model = User
         fields = FIELDS
